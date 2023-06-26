@@ -46,6 +46,10 @@ pub enum Instruction {
     STA, // Store A;           Modes: ZP, ZPX, Absolute, AX, AY, IX, IY;            Flags: --------
     STX, // Store X;           Modes: ZP, ZPY, Absolute;                            Flags: --------
     STY, // Store Y;           Modes: ZP, ZPX, Absolute;                            Flags: --------
+    TAX, // Transfer A to X;   Modes: Implied;                                      Flags: N-----Z-
+    TAY, // Transfer A to Y;   Modes: Implied;                                      Flags: N-----Z-
+    TXA, // Transfer X to A;   Modes: Implied;                                      Flags: N-----Z-
+    TYA, // Transfer Y to A;   Modes: Implied;                                      Flags: N-----Z-
     JMP, // Jump to;           Modes: Absolute, Indirect;                           Flags: --------
     None
 }
@@ -189,7 +193,7 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (None, Implied), // 0x87
     (None, Implied), // 0x88
     (None, Implied), // 0x89
-    (None, Implied), // 0x8a
+    (TXA, Implied), // 0x8a
     (None, Implied), // 0x8b
     (STY, Absolute), // 0x8c
     (STA, Absolute), // 0x8d
@@ -203,7 +207,7 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (STA, ZeroPageX), // 0x95
     (STX, ZeroPageY), // 0x96
     (None, Implied), // 0x97
-    (None, Implied), // 0x98
+    (TYA, Implied), // 0x98
     (STA, AbsoluteY), // 0x99
     (None, Implied), // 0x9a
     (None, Implied), // 0x9b
@@ -219,9 +223,9 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (LDA, ZeroPage), // 0xa5
     (LDX, ZeroPage), // 0xa6
     (None, Implied), // 0xa7
-    (None, Implied), // 0xa8
+    (TAY, Implied), // 0xa8
     (LDA, Immediate), // 0xa9
-    (None, Implied), // 0xaa
+    (TAX, Implied), // 0xaa
     (None, Implied), // 0xab
     (LDY, Absolute), // 0xac
     (LDA, Absolute), // 0xad

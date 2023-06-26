@@ -63,11 +63,11 @@ impl CPU {
 
     fn get_flag(&self, flag: Flags) -> bool {
         let i = flag as u8;
-        if self.status & (1 << i) >> i != 0 { true } else { false }
+        if self.status & (1 << i) != 0 { true } else { false }
     }
 
     fn set_flag(&mut self, flag: Flags, value: bool) {
-        let mask = (value as u8) << (flag as u8);
+        let mask = 1u8 << (flag as u8);
         if value {
             self.status |= mask;
         } else {
@@ -209,6 +209,62 @@ impl CPU {
                 self.PC += length;
             }
 
+            // TAX
+            DecodedOpcode { instruction: Instruction::TAX, operand, length } => {
+                match operand {
+                    Operand::NoArg => {},
+                    _ => { panic!("Unknown operand type for TAX: {:?}", operand); }
+                }
+
+                self.set_flag(Flags::Z, self.A == 0);
+                self.set_flag(Flags::N, (self.A & 0b10000000) != 0);
+                self.X = self.A;
+
+                self.PC += length;
+            }
+
+            // TAY
+            DecodedOpcode { instruction: Instruction::TAY, operand, length } => {
+                match operand {
+                    Operand::NoArg => {},
+                    _ => { panic!("Unknown operand type for TAY: {:?}", operand); }
+                }
+
+                self.set_flag(Flags::Z, self.A == 0);
+                self.set_flag(Flags::N, (self.A & 0b10000000) != 0);
+                self.Y = self.A;
+
+                self.PC += length;
+            }
+
+            // TXA
+            DecodedOpcode { instruction: Instruction::TXA, operand, length } => {
+                match operand {
+                    Operand::NoArg => {},
+                    _ => { panic!("Unknown operand type for TXA: {:?}", operand); }
+                }
+
+                self.set_flag(Flags::Z, self.X == 0);
+                self.set_flag(Flags::N, (self.X & 0b10000000) != 0);
+                self.A = self.X;
+
+                self.PC += length;
+            }
+
+            // TYA
+            DecodedOpcode { instruction: Instruction::TYA, operand, length } => {
+                match operand {
+                    Operand::NoArg => {},
+                    _ => { panic!("Unknown operand type for TYA: {:?}", operand); }
+                }
+
+                self.set_flag(Flags::Z, self.Y == 0);
+                self.set_flag(Flags::N, (self.Y & 0b10000000) != 0);
+                self.A = self.Y;
+
+                self.PC += length;
+            }
+
             // JMP
             DecodedOpcode { instruction: Instruction::JMP, operand, .. } => {
                 let addr = match operand {
@@ -237,6 +293,15 @@ impl CPU {
 #[cfg(test)]
 mod test {
     use super::*;
+
+    #[test]
+    fn test_set_flag() {
+        let mut cpu = CPU::new();
+        cpu.set_flag(Flags::S, false);
+        assert!(!cpu.get_flag(Flags::S));
+        cpu.set_flag(Flags::S, true);
+        assert!(cpu.get_flag(Flags::S));
+    }
 
     // TODO: cover LDA by unit tests
     // TODO: cover STA by unit tests
@@ -419,6 +484,82 @@ mod test {
         cpu.execute();
         assert_eq!(cpu.memory[0x6564], 0x71);
         assert_eq!(cpu.status, 0b00100000);
+    }
+
+    // TAX
+    #[test]
+    fn test_tax() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x600, &[0xaa, 0xaa]);
+        cpu.PC = 0x600;
+        cpu.A = 0xde;
+        cpu.X = 0xad;
+        cpu.execute();
+        assert_eq!(cpu.X, 0xde);
+        assert_eq!(cpu.status, 0b10100000);
+
+        cpu.A = 0x00;
+        cpu.X = 0xad;
+        cpu.execute();
+        assert_eq!(cpu.X, 0);
+        assert_eq!(cpu.status, 0b00100010);
+    }
+
+    // TAY
+    #[test]
+    fn test_tay() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x600, &[0xa8, 0xa8]);
+        cpu.PC = 0x600;
+        cpu.A = 0xde;
+        cpu.Y = 0xad;
+        cpu.execute();
+        assert_eq!(cpu.Y, 0xde);
+        assert_eq!(cpu.status, 0b10100000);
+
+        cpu.A = 0x00;
+        cpu.Y = 0xad;
+        cpu.execute();
+        assert_eq!(cpu.Y, 0);
+        assert_eq!(cpu.status, 0b00100010);
+    }
+
+    // TXA
+    #[test]
+    fn test_txa() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x600, &[0x8a, 0x8a]);
+        cpu.PC = 0x600;
+        cpu.A = 0xde;
+        cpu.X = 0xad;
+        cpu.execute();
+        assert_eq!(cpu.A, 0xad);
+        assert_eq!(cpu.status, 0b10100000);
+
+        cpu.A = 0x00;
+        cpu.X = 0xad;
+        cpu.execute();
+        assert_eq!(cpu.A, 0xad);
+        assert_eq!(cpu.status, 0b10100000);
+    }
+
+    // TYA
+    #[test]
+    fn test_tya() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x600, &[0x98, 0x98]);
+        cpu.PC = 0x600;
+        cpu.A = 0xde;
+        cpu.Y = 0xad;
+        cpu.execute();
+        assert_eq!(cpu.A, 0xad);
+        assert_eq!(cpu.status, 0b10100000);
+
+        cpu.A = 0x00;
+        cpu.Y = 0xad;
+        cpu.execute();
+        assert_eq!(cpu.A, 0xad);
+        assert_eq!(cpu.status, 0b10100000);
     }
 
     // JMP
