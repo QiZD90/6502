@@ -185,6 +185,19 @@ impl CPU {
                 self.PC += length;
             }
 
+            // STX
+            DecodedOpcode { instruction: Instruction::STX, operand, length } => {
+                let addr = match operand {
+                    Operand::Address(addr) => addr,
+                    _ => { panic!("Unknown operand type for STA: {:?}", operand); }
+                };
+
+                self.memory[addr as usize] = self.X;
+
+                self.PC += length;
+            }
+
+            // JMP
             DecodedOpcode { instruction: Instruction::JMP, operand, .. } => {
                 let addr = match operand {
                     Operand::Address(addr) => addr,
@@ -193,6 +206,7 @@ impl CPU {
 
                 self.PC = addr;
             }
+
             _ => println!("Unknown opcode {:?}", opcode)
         }
     }
@@ -325,6 +339,40 @@ mod test {
         assert_eq!(cpu.status, 0b00100000);
     }
 
+    // STX
+    #[test]
+    fn test_stx_zeropage() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x0, &[0x86, 0x33]);
+        cpu.PC = 0x0;
+        cpu.X = 0xbb;
+        cpu.execute();
+        assert_eq!(cpu.memory[0x0033], 0xbb);
+        assert_eq!(cpu.status, 0b00100000);
+    }
+
+    #[test]
+    fn test_stx_zeropage_y() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x0, &[0x96, 0x33]);
+        cpu.PC = 0x0;
+        cpu.X = 0x71;
+        cpu.Y = 0x22;
+        cpu.execute();
+        assert_eq!(cpu.memory[0x0055], 0x71);
+        assert_eq!(cpu.status, 0b00100000);
+    }
+
+    #[test]
+    fn test_stx_absolute() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x600, &[0x8e, 0x64, 0x65]);
+        cpu.PC = 0x600;
+        cpu.X = 0x71;
+        cpu.execute();
+        assert_eq!(cpu.memory[0x6564], 0x71);
+        assert_eq!(cpu.status, 0b00100000);
+    }
 
     // JMP
     #[test]

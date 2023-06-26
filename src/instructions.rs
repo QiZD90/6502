@@ -40,11 +40,12 @@ impl AddressingMode {
 
 #[derive(Copy, Clone, Debug)]
 pub enum Instruction {
-    LDA,
-    LDX,
-    LDY,
-    STA,
-    JMP,
+    LDA, // Load A;            Modes: Immediate, ZP, ZPX, Absolute, AX, AY, IX, IY; Flags: N-----Z-
+    LDX, // Load X;            Modes: Immediate, ZP, ZPY, Absolute, AY;             Flags: N-----Z-
+    LDY, // Load Y;            Modes: Immediate, ZP, ZPX, Absolute, AX;             Flags: N-----Z-
+    STA, // Store A;           Modes: ZP, ZPX, Absolute, AX, AY, IX, IY;            Flags: --------
+    STX, // Store X;           Modes: ZP, ZPY, Absolute;                            Flags: --------
+    JMP, // Jump to;           Modes: Absolute, Indirect;                           Flags: --------
     None
 }
 
@@ -183,7 +184,7 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (None, Implied), // 0x83
     (None, Implied), // 0x84
     (STA, ZeroPage), // 0x85
-    (None, Implied), // 0x86
+    (STX, ZeroPage), // 0x86
     (None, Implied), // 0x87
     (None, Implied), // 0x88
     (None, Implied), // 0x89
@@ -191,7 +192,7 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (None, Implied), // 0x8b
     (None, Implied), // 0x8c
     (STA, Absolute), // 0x8d
-    (None, Implied), // 0x8e
+    (STX, Absolute), // 0x8e
     (None, Implied), // 0x8f
     (None, Implied), // 0x90
     (STA, IndirectY), // 0x91
@@ -199,7 +200,7 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (None, Implied), // 0x93
     (None, Implied), // 0x94
     (STA, ZeroPageX), // 0x95
-    (None, Implied), // 0x96
+    (STX, ZeroPageY), // 0x96
     (None, Implied), // 0x97
     (None, Implied), // 0x98
     (STA, AbsoluteY), // 0x99
