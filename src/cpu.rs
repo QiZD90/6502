@@ -158,6 +158,21 @@ impl CPU {
                 self.PC += length;
             }
 
+            // LDY
+            DecodedOpcode { instruction: Instruction::LDY, operand, length } => {
+                let c = match operand {
+                    Operand::Constant(c) => c,
+                    Operand::Address(addr) => self.get_byte(addr),
+                    _ => { panic!("Unknown operand type for LDY: {:?}", operand); }
+                };
+
+                self.set_flag(Flags::Z, c == 0);
+                self.set_flag(Flags::N, (c & 0b10000000) != 0);
+                self.Y = c;
+
+                self.PC += length;
+            }
+
             // STA
             DecodedOpcode { instruction: Instruction::STA, operand, length} => {
                 let addr = match operand {
@@ -252,6 +267,61 @@ mod test {
         cpu.memory[0x2043] = 0x14;
         cpu.execute();
         assert_eq!(cpu.X, 0x14);
+        assert_eq!(cpu.status, 0b00100000);
+    }
+
+    // LDY
+    #[test]
+    fn test_ldy_immediate() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x600, &[0xa0, 0x00]);
+        cpu.execute();
+        assert_eq!(cpu.Y, 0x00);
+        assert_eq!(cpu.status, 0b00100010);
+    }
+
+    #[test]
+    fn test_ldy_zeropage() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0, &[0xa4, 0x02, 0xde]);
+        cpu.PC = 0;
+        cpu.execute();
+        assert_eq!(cpu.Y, 0xde);
+        assert_eq!(cpu.status, 0b10100000);
+    }
+
+    #[test]
+    fn test_ldy_zeropage_x() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0, &[0xb4, 0x02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x14]);
+        cpu.PC = 0;
+        cpu.X = 0x8;
+        cpu.execute();
+        assert_eq!(cpu.Y, 0x14);
+        assert_eq!(cpu.status, 0b00100000);
+    }
+
+    #[test]
+    fn test_ldy_absolute() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x600, &[0xac, 0x33, 0x20]);
+        cpu.PC = 0x600;
+        cpu.memory[0x2033] = 0xef;
+        cpu.execute();
+        assert_eq!(cpu.Y, 0xef);
+        assert_eq!(cpu.status, 0b10100000);
+    }
+
+    #[test]
+    fn test_ldy_absolute_x() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x600, &[0xbc, 0x33, 0x20]);
+        cpu.PC = 0x600;
+        cpu.X = 0x10;
+        cpu.memory[0x2033] = 0xef;
+        cpu.memory[0x2043] = 0x14;
+        cpu.execute();
+        assert_eq!(cpu.Y, 0x14);
         assert_eq!(cpu.status, 0b00100000);
     }
 
