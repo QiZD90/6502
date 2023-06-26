@@ -41,6 +41,7 @@ impl AddressingMode {
 #[derive(Copy, Clone, Debug)]
 pub enum Instruction {
     LDA,
+    LDX,
     STA,
     JMP,
     None
@@ -209,11 +210,11 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (None, Implied), // 0x9f
     (None, Implied), // 0xa0
     (LDA, IndirectX), // 0xa1
-    (None, Implied), // 0xa2
+    (LDX, Immediate), // 0xa2
     (None, Implied), // 0xa3
     (None, Implied), // 0xa4
     (LDA, ZeroPage), // 0xa5
-    (None, Implied), // 0xa6
+    (LDX, ZeroPage), // 0xa6
     (None, Implied), // 0xa7
     (None, Implied), // 0xa8
     (LDA, Immediate), // 0xa9
@@ -221,7 +222,7 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (None, Implied), // 0xab
     (None, Implied), // 0xac
     (LDA, Absolute), // 0xad
-    (None, Implied), // 0xae
+    (LDX, Absolute), // 0xae
     (None, Implied), // 0xaf
     (None, Implied), // 0xb0
     (LDA, IndirectY), // 0xb1
@@ -229,7 +230,7 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (None, Implied), // 0xb3
     (None, Implied), // 0xb4
     (LDA, ZeroPageX), // 0xb5
-    (None, Implied), // 0xb6
+    (LDX, ZeroPageY), // 0xb6
     (None, Implied), // 0xb7
     (None, Implied), // 0xb8
     (LDA, AbsoluteY), // 0xb9
@@ -237,7 +238,7 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (None, Implied), // 0xbb
     (None, Implied), // 0xbc
     (LDA, AbsoluteX), // 0xbd
-    (None, Implied), // 0xbe
+    (LDX, AbsoluteY), // 0xbe
     (None, Implied), // 0xbf
     (None, Implied), // 0xc0
     (None, Implied), // 0xc1

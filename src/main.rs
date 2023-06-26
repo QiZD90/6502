@@ -5,7 +5,7 @@ use crate::cpu::*;
 
 fn main() {
     let mut cpu = CPU::new();
-    cpu.load(&[0x6c, 0x03, 0x06, 0x12, 0x20]);
+    cpu.load_at(0x600, &[0x6c, 0x03, 0x06, 0x12, 0x20]);
     cpu.execute();
     cpu.print();
 }

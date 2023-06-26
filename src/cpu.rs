@@ -1,5 +1,6 @@
 use crate::instructions::*;
 
+#[allow(non_snake_case)]
 pub struct CPU {
     PC: u16,
     SP: u8,
@@ -10,6 +11,7 @@ pub struct CPU {
     memory: [u8; 0x10000]
 }
 
+#[allow(dead_code)]
 enum Flags {
     C = 0, // Carry flag
     Z = 1, // Zero flag
@@ -45,7 +47,7 @@ impl CPU {
 
         print!("PC = 0x{:04x}, ", self.PC);
         print!("SP = 0x{:02x}, ", self.SP);
-        print!("status = 0x{:08b}", self.status);
+        print!("status = 0b{:08b}", self.status);
         println!(" }} ");
     }
 
@@ -105,9 +107,9 @@ impl CPU {
             AddressingMode::Absolute =>
                 Operand::Address(self.get_word(self.PC + 1)),
             AddressingMode::AbsoluteX =>
-                Operand::Address(self.get_word(self.PC) + self.X as u16),
+                Operand::Address(self.get_word(self.PC + 1) + self.X as u16),
             AddressingMode::AbsoluteY =>
-                Operand::Address(self.get_word(self.PC) + self.Y as u16),
+                Operand::Address(self.get_word(self.PC + 1) + self.Y as u16),
             AddressingMode::Indirect =>
                 Operand::Address(self.get_word(self.get_word(self.PC + 1))),
             AddressingMode::IndirectX => {
@@ -139,7 +141,22 @@ impl CPU {
                 self.A = c;
 
                 self.PC += length;
-            },
+            }
+
+            // LDX
+            DecodedOpcode { instruction: Instruction::LDX, operand, length } => {
+                let c = match operand {
+                    Operand::Constant(c) => c,
+                    Operand::Address(addr) => self.get_byte(addr),
+                    _ => { panic!("Unknown operand type for LDX: {:?}", operand); }
+                };
+
+                self.set_flag(Flags::Z, c == 0);
+                self.set_flag(Flags::N, (c & 0b10000000) != 0);
+                self.X = c;
+
+                self.PC += length;
+            }
 
             // STA
             DecodedOpcode { instruction: Instruction::STA, operand, length} => {
@@ -151,9 +168,9 @@ impl CPU {
                 self.memory[addr as usize] = self.A;
 
                 self.PC += length;
-            },
+            }
 
-            DecodedOpcode { instruction: Instruction::JMP, operand, length } => {
+            DecodedOpcode { instruction: Instruction::JMP, operand, .. } => {
                 let addr = match operand {
                     Operand::Address(addr) => addr,
                     _ => { panic!("Unknown operand type for STA: {:?}", operand); }
@@ -165,13 +182,98 @@ impl CPU {
         }
     }
 
-    pub fn load(&mut self, data: &[u8]) {
+    pub fn load_at(&mut self, at: usize, data: &[u8]) {
         for (i, byte) in data.into_iter().enumerate() {
-            self.memory[0x0600 + i] = *byte;
+            self.memory[at + i] = *byte;
         }
     }
 
     pub fn new() -> CPU {
         CPU { PC: 0x600, SP: 0xff, A: 0, X: 0, Y: 0, status: 0b00100000, memory: [0; 0x10000] }
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    // TODO: cover LDA by unit tests
+    // TODO: cover STA by unit tests
+
+    // LDX
+    #[test]
+    fn test_ldx_immediate() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x600, &[0xa2, 0xff]);
+        cpu.execute();
+        assert_eq!(cpu.X, 0xff);
+        assert_eq!(cpu.status, 0b10100000);
+    }
+
+    #[test]
+    fn test_ldx_zeropage() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0, &[0xa6, 0x02, 0xde]);
+        cpu.PC = 0;
+        cpu.execute();
+        assert_eq!(cpu.X, 0xde);
+        assert_eq!(cpu.status, 0b10100000);
+    }
+
+    #[test]
+    fn test_ldx_zeropage_y() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0, &[0xb6, 0x02, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x14]);
+        cpu.PC = 0;
+        cpu.Y = 0x8;
+        cpu.execute();
+        assert_eq!(cpu.X, 0x14);
+        assert_eq!(cpu.status, 0b00100000);
+    }
+
+    #[test]
+    fn test_ldx_absolute() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x600, &[0xae, 0x33, 0x20]);
+        cpu.PC = 0x600;
+        cpu.memory[0x2033] = 0xef;
+        cpu.execute();
+        assert_eq!(cpu.X, 0xef);
+        assert_eq!(cpu.status, 0b10100000);
+    }
+
+    #[test]
+    fn test_ldx_absolute_y() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x600, &[0xbe, 0x33, 0x20]);
+        cpu.PC = 0x600;
+        cpu.Y = 0x10;
+        cpu.memory[0x2033] = 0xef;
+        cpu.memory[0x2043] = 0x14;
+        cpu.execute();
+        assert_eq!(cpu.X, 0x14);
+        assert_eq!(cpu.status, 0b00100000);
+    }
+
+
+    // JMP
+    #[test]
+    fn test_jmp_indirect() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x600, &[0x6c, 0x03, 0x06, 0x12, 0x20]);
+        cpu.PC = 0x600;
+        cpu.execute();
+        assert_eq!(cpu.PC, 0x2012);
+        assert_eq!(cpu.status, 0b00100000);
+    }
+
+    #[test]
+    fn test_jmp_absolute() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x600, &[0x4c, 0x12, 0x20]);
+        cpu.PC = 0x600;
+        cpu.execute();
+        assert_eq!(cpu.PC, 0x2012);
+        assert_eq!(cpu.status, 0b00100000);
     }
 }
