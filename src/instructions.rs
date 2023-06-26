@@ -42,6 +42,7 @@ impl AddressingMode {
 pub enum Instruction {
     LDA,
     STA,
+    JMP,
     None
 }
 
@@ -122,7 +123,7 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (None, Implied), // 0x49
     (None, Implied), // 0x4a
     (None, Implied), // 0x4b
-    (None, Implied), // 0x4c
+    (JMP, Absolute), // 0x4c
     (None, Implied), // 0x4d
     (None, Implied), // 0x4e
     (None, Implied), // 0x4f
@@ -154,7 +155,7 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (None, Implied), // 0x69
     (None, Implied), // 0x6a
     (None, Implied), // 0x6b
-    (None, Implied), // 0x6c
+    (JMP, Indirect), // 0x6c
     (None, Implied), // 0x6d
     (None, Implied), // 0x6e
     (None, Implied), // 0x6f

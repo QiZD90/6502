@@ -120,7 +120,7 @@ impl CPU {
             }
         };
 
-        DecodedOpcode {instruction: instruction, operand: operand, length: 1 + mode.operand_bytes() }
+        DecodedOpcode {instruction, operand, length: 1 + mode.operand_bytes() }
     }
 
     pub fn execute(&mut self) {
@@ -151,6 +151,15 @@ impl CPU {
                 self.memory[addr as usize] = self.A;
 
                 self.PC += length;
+            },
+
+            DecodedOpcode { instruction: Instruction::JMP, operand, length } => {
+                let addr = match operand {
+                    Operand::Address(addr) => addr,
+                    _ => { panic!("Unknown operand type for STA: {:?}", operand); }
+                };
+
+                self.PC = addr;
             }
             _ => println!("Unknown opcode {:?}", opcode)
         }
