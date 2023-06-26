@@ -189,10 +189,22 @@ impl CPU {
             DecodedOpcode { instruction: Instruction::STX, operand, length } => {
                 let addr = match operand {
                     Operand::Address(addr) => addr,
-                    _ => { panic!("Unknown operand type for STA: {:?}", operand); }
+                    _ => { panic!("Unknown operand type for STX: {:?}", operand); }
                 };
 
                 self.memory[addr as usize] = self.X;
+
+                self.PC += length;
+            }
+
+            // STY
+            DecodedOpcode { instruction: Instruction::STY, operand, length } => {
+                let addr = match operand {
+                    Operand::Address(addr) => addr,
+                    _ => { panic!("Unknown operand type for STY: {:?}", operand); }
+                };
+
+                self.memory[addr as usize] = self.Y;
 
                 self.PC += length;
             }
@@ -369,6 +381,41 @@ mod test {
         cpu.load_at(0x600, &[0x8e, 0x64, 0x65]);
         cpu.PC = 0x600;
         cpu.X = 0x71;
+        cpu.execute();
+        assert_eq!(cpu.memory[0x6564], 0x71);
+        assert_eq!(cpu.status, 0b00100000);
+    }
+
+    // STY
+    #[test]
+    fn test_sty_zeropage() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x0, &[0x84, 0x33]);
+        cpu.PC = 0x0;
+        cpu.Y = 0xbb;
+        cpu.execute();
+        assert_eq!(cpu.memory[0x0033], 0xbb);
+        assert_eq!(cpu.status, 0b00100000);
+    }
+
+    #[test]
+    fn test_sty_zeropage_x() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x0, &[0x94, 0x33]);
+        cpu.PC = 0x0;
+        cpu.Y = 0x71;
+        cpu.X = 0x22;
+        cpu.execute();
+        assert_eq!(cpu.memory[0x0055], 0x71);
+        assert_eq!(cpu.status, 0b00100000);
+    }
+
+    #[test]
+    fn test_sty_absolute() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x600, &[0x8c, 0x64, 0x65]);
+        cpu.PC = 0x600;
+        cpu.Y = 0x71;
         cpu.execute();
         assert_eq!(cpu.memory[0x6564], 0x71);
         assert_eq!(cpu.status, 0b00100000);

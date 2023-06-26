@@ -45,6 +45,7 @@ pub enum Instruction {
     LDY, // Load Y;            Modes: Immediate, ZP, ZPX, Absolute, AX;             Flags: N-----Z-
     STA, // Store A;           Modes: ZP, ZPX, Absolute, AX, AY, IX, IY;            Flags: --------
     STX, // Store X;           Modes: ZP, ZPY, Absolute;                            Flags: --------
+    STY, // Store Y;           Modes: ZP, ZPX, Absolute;                            Flags: --------
     JMP, // Jump to;           Modes: Absolute, Indirect;                           Flags: --------
     None
 }
@@ -182,7 +183,7 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (STA, IndirectX), // 0x81
     (None, Implied), // 0x82
     (None, Implied), // 0x83
-    (None, Implied), // 0x84
+    (STY, ZeroPage), // 0x84
     (STA, ZeroPage), // 0x85
     (STX, ZeroPage), // 0x86
     (None, Implied), // 0x87
@@ -190,7 +191,7 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (None, Implied), // 0x89
     (None, Implied), // 0x8a
     (None, Implied), // 0x8b
-    (None, Implied), // 0x8c
+    (STY, Absolute), // 0x8c
     (STA, Absolute), // 0x8d
     (STX, Absolute), // 0x8e
     (None, Implied), // 0x8f
@@ -198,7 +199,7 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (STA, IndirectY), // 0x91
     (None, Implied), // 0x92
     (None, Implied), // 0x93
-    (None, Implied), // 0x94
+    (STY, ZeroPageX), // 0x94
     (STA, ZeroPageX), // 0x95
     (STX, ZeroPageY), // 0x96
     (None, Implied), // 0x97
