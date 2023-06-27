@@ -50,6 +50,10 @@ pub enum Instruction {
     TAY, // Transfer A to Y;   Modes: Implied;                                      Flags: N-----Z-
     TXA, // Transfer X to A;   Modes: Implied;                                      Flags: N-----Z-
     TYA, // Transfer Y to A;   Modes: Implied;                                      Flags: N-----Z-
+    DEX, // Decrement X;       Modes: Implied;                                      Flags: N-----Z-
+    DEY, // Decrement Y;       Modes: Implied;                                      Flags: N-----Z-
+    INX, // Increment X;       Modes: Implied;                                      Flags: N-----Z-
+    INY, // Increment Y;       Modes: Implied;                                      Flags: N-----Z-
     JMP, // Jump to;           Modes: Absolute, Indirect;                           Flags: --------
     None
 }
@@ -191,7 +195,7 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (STA, ZeroPage), // 0x85
     (STX, ZeroPage), // 0x86
     (None, Implied), // 0x87
-    (None, Implied), // 0x88
+    (DEY, Implied), // 0x88
     (None, Implied), // 0x89
     (TXA, Implied), // 0x8a
     (None, Implied), // 0x8b
@@ -255,9 +259,9 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (None, Implied), // 0xc5
     (None, Implied), // 0xc6
     (None, Implied), // 0xc7
-    (None, Implied), // 0xc8
+    (INY, Implied), // 0xc8
     (None, Implied), // 0xc9
-    (None, Implied), // 0xca
+    (DEX, Implied), // 0xca
     (None, Implied), // 0xcb
     (None, Implied), // 0xcc
     (None, Implied), // 0xcd
@@ -287,7 +291,7 @@ pub static OPCODES: [(Instruction, AddressingMode); 256] = [
     (None, Implied), // 0xe5
     (None, Implied), // 0xe6
     (None, Implied), // 0xe7
-    (None, Implied), // 0xe8
+    (INX, Implied), // 0xe8
     (None, Implied), // 0xe9
     (None, Implied), // 0xea
     (None, Implied), // 0xeb

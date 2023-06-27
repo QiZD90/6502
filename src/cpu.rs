@@ -265,6 +265,66 @@ impl CPU {
                 self.PC += length;
             }
 
+            // DEX
+            DecodedOpcode { instruction: Instruction::DEX, operand, length } => {
+                match operand {
+                    Operand::NoArg => {},
+                    _ => { panic!("Unknown operand type for DEX: {:?}", operand); }
+                }
+
+                let c = self.X.wrapping_sub(1);
+                self.set_flag(Flags::Z, c == 0);
+                self.set_flag(Flags::N, (c & 0b10000000) != 0);
+                self.X = c;
+
+                self.PC += length;
+            }
+
+            // DEY
+            DecodedOpcode { instruction: Instruction::DEY, operand, length } => {
+                match operand {
+                    Operand::NoArg => {},
+                    _ => { panic!("Unknown operand type for DET: {:?}", operand); }
+                }
+
+                let c = self.Y.wrapping_sub(1);
+                self.set_flag(Flags::Z, c == 0);
+                self.set_flag(Flags::N, (c & 0b10000000) != 0);
+                self.Y = c;
+
+                self.PC += length;
+            }
+
+            // INX
+            DecodedOpcode { instruction: Instruction::INX, operand, length } => {
+                match operand {
+                    Operand::NoArg => {},
+                    _ => { panic!("Unknown operand type for INX: {:?}", operand); }
+                }
+
+                let c = self.X.wrapping_add(1);
+                self.set_flag(Flags::Z, c == 0);
+                self.set_flag(Flags::N, (c & 0b10000000) != 0);
+                self.X = c;
+
+                self.PC += length;
+            }
+
+            // INY
+            DecodedOpcode { instruction: Instruction::INY, operand, length } => {
+                match operand {
+                    Operand::NoArg => {},
+                    _ => { panic!("Unknown operand type for INY: {:?}", operand); }
+                }
+
+                let c = self.Y.wrapping_add(1);
+                self.set_flag(Flags::Z, c == 0);
+                self.set_flag(Flags::N, (c & 0b10000000) != 0);
+                self.Y = c;
+
+                self.PC += length;
+            }
+
             // JMP
             DecodedOpcode { instruction: Instruction::JMP, operand, .. } => {
                 let addr = match operand {
@@ -560,6 +620,66 @@ mod test {
         cpu.execute();
         assert_eq!(cpu.A, 0xad);
         assert_eq!(cpu.status, 0b10100000);
+    }
+
+    // DEX
+    #[test]
+    fn test_dex() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0, &[0xca, 0xca]);
+        cpu.X = 0x01;
+        cpu.PC = 0x0;
+        cpu.execute();
+        assert_eq!(cpu.X, 0x00);
+        assert_eq!(cpu.status, 0b00100010);
+        cpu.execute();
+        assert_eq!(cpu.X, 0xff);
+        assert_eq!(cpu.status, 0b10100000);
+    }
+
+    // DEY
+    #[test]
+    fn test_dey() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0, &[0x88, 0x88]);
+        cpu.Y = 0x01;
+        cpu.PC = 0x0;
+        cpu.execute();
+        assert_eq!(cpu.Y, 0x00);
+        assert_eq!(cpu.status, 0b00100010);
+        cpu.execute();
+        assert_eq!(cpu.Y, 0xff);
+        assert_eq!(cpu.status, 0b10100000);
+    }
+
+    // INX
+    #[test]
+    fn test_inx() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0, &[0xe8, 0xe8]);
+        cpu.X = 0xfe;
+        cpu.PC = 0x0;
+        cpu.execute();
+        assert_eq!(cpu.X, 0xff);
+        assert_eq!(cpu.status, 0b10100000);
+        cpu.execute();
+        assert_eq!(cpu.X, 0x00);
+        assert_eq!(cpu.status, 0b00100010);
+    }
+
+    // INY
+    #[test]
+    fn test_iny() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0, &[0xc8, 0xc8]);
+        cpu.Y = 0xfe;
+        cpu.PC = 0x0;
+        cpu.execute();
+        assert_eq!(cpu.Y, 0xff);
+        assert_eq!(cpu.status, 0b10100000);
+        cpu.execute();
+        assert_eq!(cpu.Y, 0x00);
+        assert_eq!(cpu.status, 0b00100010);
     }
 
     // JMP
