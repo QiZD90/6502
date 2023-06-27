@@ -88,7 +88,7 @@ impl CPU {
     }
 
     fn fetch_and_decode(&self) -> DecodedOpcode {
-        let (instruction, mode) = OPCODES[self.get_byte(self.PC) as usize];
+        let (instruction, mode, _cycles) = OPCODES[self.get_byte(self.PC) as usize];
         let operand =  match mode {
             AddressingMode::Implied => Operand::NoArg,
             AddressingMode::Accumulator => Operand::Accumulator,
