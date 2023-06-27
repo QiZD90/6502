@@ -66,6 +66,13 @@ pub enum Instruction {
     INC, // Increment memory;  Modes: ZP, ZPX, Absoulute, AX;                       Flags: N-----Z-
     TSX, // Transfer SP to X;  Modes: Implied;                                      Flags: N-----Z-
     TXS, // Transfer X to SP;  Modes: Implied;                                      Flags: --------
+    CLC, // Clear carry flag;  Modes: Implied;                                      Flags: -------C
+    CLD, // Clear decimal;     Modes: Implied;                                      Flags: ----D---
+    CLI, // Clear interrupt;   Modes: Implied;                                      Flags: -----I--
+    CLV, // Clear overflow;    Modes: Implied;                                      Flags: -V------
+    SEC, // Set carry flag;    Modes: Implied;                                      Flags: -------C
+    SED, // Clear decimal;     Modes: Implied;                                      Flags: ----D---
+    SEI, // Set interrupt;     Modes: Implied;                                      Flags: -----I--
     JMP, // Jump to;           Modes: Absolute, Indirect;                           Flags: --------
     None
 }
@@ -95,7 +102,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x15
     (None, Implied, Exact(0)), // 0x16
     (None, Implied, Exact(0)), // 0x17
-    (None, Implied, Exact(0)), // 0x18
+    (CLC, Implied, Exact(2)), // 0x18
     (None, Implied, Exact(0)), // 0x19
     (None, Implied, Exact(0)), // 0x1a
     (None, Implied, Exact(0)), // 0x1b
@@ -127,7 +134,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x35
     (None, Implied, Exact(0)), // 0x36
     (None, Implied, Exact(0)), // 0x37
-    (None, Implied, Exact(0)), // 0x38
+    (SEC, Implied, Exact(2)), // 0x38
     (None, Implied, Exact(0)), // 0x39
     (None, Implied, Exact(0)), // 0x3a
     (None, Implied, Exact(0)), // 0x3b
@@ -159,7 +166,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x55
     (None, Implied, Exact(0)), // 0x56
     (None, Implied, Exact(0)), // 0x57
-    (None, Implied, Exact(0)), // 0x58
+    (CLI, Implied, Exact(2)), // 0x58
     (None, Implied, Exact(0)), // 0x59
     (None, Implied, Exact(0)), // 0x5a
     (None, Implied, Exact(0)), // 0x5b
@@ -191,7 +198,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x75
     (None, Implied, Exact(0)), // 0x76
     (None, Implied, Exact(0)), // 0x77
-    (None, Implied, Exact(0)), // 0x78
+    (SEI, Implied, Exact(2)), // 0x78
     (None, Implied, Exact(0)), // 0x79
     (None, Implied, Exact(0)), // 0x7a
     (None, Implied, Exact(0)), // 0x7b
@@ -255,7 +262,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (LDA, ZeroPageX, Exact(4)), // 0xb5
     (LDX, ZeroPageY, Exact(4)), // 0xb6
     (None, Implied, Exact(0)), // 0xb7
-    (None, Implied, Exact(0)), // 0xb8
+    (CLV, Implied, Exact(2)), // 0xb8
     (LDA, AbsoluteY, PageBoundary(4)), // 0xb9
     (TSX, Implied, Exact(2)), // 0xba
     (None, Implied, Exact(0)), // 0xbb
@@ -287,7 +294,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0xd5
     (DEC, ZeroPageX, Exact(6)), // 0xd6
     (None, Implied, Exact(0)), // 0xd7
-    (None, Implied, Exact(0)), // 0xd8
+    (CLD, Implied, Exact(2)), // 0xd8
     (None, Implied, Exact(0)), // 0xd9
     (None, Implied, Exact(0)), // 0xda
     (None, Implied, Exact(0)), // 0xdb
@@ -319,7 +326,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0xf5
     (INC, ZeroPageX, Exact(6)), // 0xf6
     (None, Implied, Exact(0)), // 0xf7
-    (None, Implied, Exact(0)), // 0xf8
+    (SED, Implied, Exact(2)), // 0xf8
     (None, Implied, Exact(0)), // 0xf9
     (None, Implied, Exact(0)), // 0xfa
     (None, Implied, Exact(0)), // 0xfb

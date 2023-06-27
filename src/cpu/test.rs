@@ -501,6 +501,20 @@ mod test {
         assert_eq!(cpu.status, 0b00100000);
     }
 
+    // CLC, CLD, CLI, CLV, SEC, SED, SEI
+    fn test_flags_instructions() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x600, &[0x38, 0xf8, 0x78,    0x18, 0xd8, 0x58, 0xb8]);
+        cpu.PC = 0x600;
+
+        cpu.execute(); cpu.execute(); cpu.execute();
+        assert_eq!(cpu.status, 0b00101101);
+
+        cpu.execute(); cpu.execute(); cpu.execute(); cpu.execute();
+        assert_eq!(cpu.status, 0b00100000);
+    }
+
+
     // JMP
     #[test]
     fn test_jmp_indirect() {

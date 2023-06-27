@@ -1,3 +1,4 @@
+use crate::instructions;
 use crate::instructions::*;
 
 #[allow(non_snake_case)]
@@ -383,6 +384,33 @@ impl CPU {
                 }
 
                 self.SP = self.X;
+
+                self.PC += length;
+            }
+
+            // CLC, CLD, CLI, CLV,
+            DecodedOpcode { instruction: Instruction::CLC, operand, length }
+            | DecodedOpcode { instruction: Instruction::CLD, operand, length }
+            | DecodedOpcode { instruction: Instruction::CLI, operand, length }
+            | DecodedOpcode { instruction: Instruction::CLV, operand, length }
+            | DecodedOpcode { instruction: Instruction::SEC, operand, length }
+            | DecodedOpcode { instruction: Instruction::SED, operand, length }
+            | DecodedOpcode { instruction: Instruction::SEI, operand, length } => {
+                let flag = match opcode.instruction {
+                    Instruction::CLC | Instruction::SEC => Flags::C,
+                    Instruction::CLD | Instruction::SED => Flags::D,
+                    Instruction::CLI | Instruction::SEI => Flags::I,
+                    Instruction::CLV => Flags::V,
+                    _ => { panic!(); }
+                };
+
+                let value = match opcode.instruction {
+                    Instruction::CLC | Instruction::CLD | Instruction::CLI | Instruction::CLV => false,
+                    Instruction::SEC | Instruction::SED | Instruction::SEI => true,
+                    _ => { panic!(); }
+                };
+
+                self.set_flag(flag, value);
 
                 self.PC += length;
             }
