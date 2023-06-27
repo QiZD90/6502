@@ -9,7 +9,7 @@
 | JSR | LDA | LDX | LDY | LSR | NOP | ORA | PHA | PHP | PLA | PLP | ROL | ROR | TYA |
 | ❌   | ✅   | ✅   | ✅   | ❌   | ❌   | ❌   | ❌   | ❌   | ❌   | ❌   | ❌   | ❌   | ✅   |
 | RTI | RTS | SBC | SEC | SED | SEI | STA | STX | STY | TAX | TAY | TSX | TXA | TXS |
-| ❌   | ❌   | ❌   | ❌   | ❌   | ❌   | ✅   | ✅   | ✅   | ✅   | ✅   | ❌   | ✅   | ❌   |
+| ❌   | ❌   | ❌   | ❌   | ❌   | ❌   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   |
 
-### Instructions:  17 / 56
-### Opcodes:       49 / 151
+### Instructions:  19 / 56
+### Opcodes:       51 / 151

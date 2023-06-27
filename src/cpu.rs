@@ -288,7 +288,7 @@ impl CPU {
             DecodedOpcode { instruction: Instruction::DEY, operand, length } => {
                 match operand {
                     Operand::NoArg => {},
-                    _ => { panic!("Unknown operand type for DET: {:?}", operand); }
+                    _ => { panic!("Unknown operand type for DEY: {:?}", operand); }
                 }
 
                 let c = self.Y.wrapping_sub(1);
@@ -361,11 +361,37 @@ impl CPU {
                 self.PC += length;
             }
 
+            // TSX
+            DecodedOpcode { instruction: Instruction::TSX, operand, length } => {
+                match operand {
+                    Operand::NoArg => {},
+                    _ => { panic!("Unknown operand type for TSX: {:?}", operand); }
+                }
+
+                self.set_flag(Flags::Z, self.SP == 0);
+                self.set_flag(Flags::N, (self.SP & 0b10000000) != 0);
+                self.X = self.SP;
+
+                self.PC += length;
+            }
+
+            // TXS
+            DecodedOpcode { instruction: Instruction::TXS, operand, length } => {
+                match operand {
+                    Operand::NoArg => {},
+                    _ => { panic!("Unknown operand type for TSX: {:?}", operand); }
+                }
+
+                self.SP = self.X;
+
+                self.PC += length;
+            }
+
             // JMP
             DecodedOpcode { instruction: Instruction::JMP, operand, .. } => {
                 let addr = match operand {
                     Operand::Address(addr) => addr,
-                    _ => { panic!("Unknown operand type for STA: {:?}", operand); }
+                    _ => { panic!("Unknown operand type for JMP: {:?}", operand); }
                 };
 
                 self.PC = addr;

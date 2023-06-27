@@ -451,6 +451,56 @@ mod test {
         assert_eq!(cpu.status, 0b00100010);
     }
 
+    // TSX
+    #[test]
+    fn test_tsx() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0, &[0xba, 0xba, 0xba]);
+        cpu.SP = 0x22;
+        cpu.PC = 0;
+        cpu.execute();
+        assert_eq!(cpu.SP, 0x22);
+        assert_eq!(cpu.X, 0x22);
+        assert_eq!(cpu.status, 0b00100000);
+
+        cpu.SP = 0x00;
+        cpu.execute();
+        assert_eq!(cpu.SP, 0x00);
+        assert_eq!(cpu.X, 0x00);
+        assert_eq!(cpu.status, 0b00100010);
+
+        cpu.SP = 0xfa;
+        cpu.execute();
+        assert_eq!(cpu.SP, 0xfa);
+        assert_eq!(cpu.X, 0xfa);
+        assert_eq!(cpu.status, 0b10100000);
+    }
+
+    // TXS
+    #[test]
+    fn test_txs() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0, &[0x9a, 0x9a, 0x9a]);
+        cpu.X = 0x22;
+        cpu.PC = 0;
+        cpu.execute();
+        assert_eq!(cpu.SP, 0x22);
+        assert_eq!(cpu.X, 0x22);
+        assert_eq!(cpu.status, 0b00100000);
+
+        cpu.X = 0x00;
+        cpu.execute();
+        assert_eq!(cpu.SP, 0x00);
+        assert_eq!(cpu.X, 0x00);
+        assert_eq!(cpu.status, 0b00100000);
+
+        cpu.X = 0xfa;
+        cpu.execute();
+        assert_eq!(cpu.SP, 0xfa);
+        assert_eq!(cpu.X, 0xfa);
+        assert_eq!(cpu.status, 0b00100000);
+    }
+
     // JMP
     #[test]
     fn test_jmp_indirect() {

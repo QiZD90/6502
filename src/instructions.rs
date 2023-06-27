@@ -64,6 +64,8 @@ pub enum Instruction {
     INX, // Increment X;       Modes: Implied;                                      Flags: N-----Z-
     INY, // Increment Y;       Modes: Implied;                                      Flags: N-----Z-
     INC, // Increment memory;  Modes: ZP, ZPX, Absoulute, AX;                       Flags: N-----Z-
+    TSX, // Transfer SP to X;  Modes: Implied;                                      Flags: N-----Z-
+    TXS, // Transfer X to SP;  Modes: Implied;                                      Flags: --------
     JMP, // Jump to;           Modes: Absolute, Indirect;                           Flags: --------
     None
 }
@@ -223,7 +225,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x97
     (TYA, Implied, Exact(2)), // 0x98
     (STA, AbsoluteY, Exact(5)), // 0x99
-    (None, Implied, Exact(0)), // 0x9a
+    (TXS, Implied, Exact(2)), // 0x9a
     (None, Implied, Exact(0)), // 0x9b
     (None, Implied, Exact(0)), // 0x9c
     (STA, AbsoluteX, Exact(5)), // 0x9d
@@ -255,7 +257,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0xb7
     (None, Implied, Exact(0)), // 0xb8
     (LDA, AbsoluteY, PageBoundary(4)), // 0xb9
-    (None, Implied, Exact(0)), // 0xba
+    (TSX, Implied, Exact(2)), // 0xba
     (None, Implied, Exact(0)), // 0xbb
     (LDY, AbsoluteX, PageBoundary(4)), // 0xbc
     (LDA, AbsoluteX, PageBoundary(4)), // 0xbd
