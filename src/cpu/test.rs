@@ -514,6 +514,50 @@ mod test {
         assert_eq!(cpu.status, 0b00100000);
     }
 
+    #[test]
+    fn test_php_plp() {
+        let mut cpu = CPU::new();
+        // Set all flags, push status, clear all flags, pull status
+        cpu.load_at(0x0, &[0x38, 0xf8, 0x78, 0x08, 0x18, 0xd8, 0x58, 0xb8, 0x28]);
+        cpu.PC = 0;
+
+        cpu.execute(); cpu.execute(); cpu.execute(); cpu.execute();
+        assert_eq!(cpu.status, 0b00101101);
+        assert_eq!(cpu.SP, 0xfe);
+
+        cpu.execute(); cpu.execute(); cpu.execute(); cpu.execute();
+        assert_eq!(cpu.status, 0b00100000);
+
+        cpu.execute();
+        assert_eq!(cpu.status, 0b00101101);
+        assert_eq!(cpu.SP, 0xff);
+    }
+
+
+    #[test]
+    fn test_pha_pla() {
+        let mut cpu = CPU::new();
+        cpu.load_at(0x0, &[0x48, 0x48, 0x68, 0x68]); // push, push, pull, pull
+        cpu.PC = 0;
+        cpu.A = 0xfd;
+        cpu.execute();
+        assert_eq!(cpu.SP, 0xfe);
+
+        cpu.A = 0x00;
+        cpu.execute();
+        assert_eq!(cpu.SP, 0xfd);
+
+        cpu.execute();
+        assert_eq!(cpu.SP, 0xfe);
+        assert_eq!(cpu.A, 0x00);
+        assert_eq!(cpu.status, 0b00100010);
+
+        cpu.execute();
+        assert_eq!(cpu.SP, 0xff);
+        assert_eq!(cpu.A, 0xfd);
+        assert_eq!(cpu.status, 0b10100000);
+    }
+
 
     // JMP
     #[test]

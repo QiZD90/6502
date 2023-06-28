@@ -73,6 +73,11 @@ pub enum Instruction {
     SEC, // Set carry flag;    Modes: Implied;                                      Flags: -------C
     SED, // Clear decimal;     Modes: Implied;                                      Flags: ----D---
     SEI, // Set interrupt;     Modes: Implied;                                      Flags: -----I--
+    NOP, // No operation;      Modes: Implied;                                      Flags: --------
+    PHA, // Push accumulator;  Modes: Implied;                                      Flags: --------
+    PHP, // Push status;       Modes: Implied;                                      Flags: --------
+    PLA, // Pull accumulator;  Modes: Implied;                                      Flags: N-----Z-
+    PLP, // Pull status;       Modes: Implied;                                      Flags: NV-BDIZC
     JMP, // Jump to;           Modes: Absolute, Indirect;                           Flags: --------
     None
 }
@@ -86,7 +91,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x05
     (None, Implied, Exact(0)), // 0x06
     (None, Implied, Exact(0)), // 0x07
-    (None, Implied, Exact(0)), // 0x08
+    (PHP, Implied, Exact(3)), // 0x08
     (None, Implied, Exact(0)), // 0x09
     (None, Implied, Exact(0)), // 0x0a
     (None, Implied, Exact(0)), // 0x0b
@@ -118,7 +123,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x25
     (None, Implied, Exact(0)), // 0x26
     (None, Implied, Exact(0)), // 0x27
-    (None, Implied, Exact(0)), // 0x28
+    (PLP, Implied, Exact(4)), // 0x28
     (None, Implied, Exact(0)), // 0x29
     (None, Implied, Exact(0)), // 0x2a
     (None, Implied, Exact(0)), // 0x2b
@@ -150,7 +155,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x45
     (None, Implied, Exact(0)), // 0x46
     (None, Implied, Exact(0)), // 0x47
-    (None, Implied, Exact(0)), // 0x48
+    (PHA, Implied, Exact(3)), // 0x48
     (None, Implied, Exact(0)), // 0x49
     (None, Implied, Exact(0)), // 0x4a
     (None, Implied, Exact(0)), // 0x4b
@@ -182,7 +187,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x65
     (None, Implied, Exact(0)), // 0x66
     (None, Implied, Exact(0)), // 0x67
-    (None, Implied, Exact(0)), // 0x68
+    (PLA, Implied, Exact(4)), // 0x68
     (None, Implied, Exact(0)), // 0x69
     (None, Implied, Exact(0)), // 0x6a
     (None, Implied, Exact(0)), // 0x6b
@@ -312,7 +317,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0xe7
     (INX, Implied, Exact(2)), // 0xe8
     (None, Implied, Exact(0)), // 0xe9
-    (None, Implied, Exact(0)), // 0xea
+    (NOP, Implied, Exact(2)), // 0xea
     (None, Implied, Exact(0)), // 0xeb
     (None, Implied, Exact(0)), // 0xec
     (None, Implied, Exact(0)), // 0xed

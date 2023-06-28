@@ -1,4 +1,3 @@
-use crate::instructions;
 use crate::instructions::*;
 
 #[allow(non_snake_case)]
@@ -90,6 +89,18 @@ impl CPU {
 
     fn set_byte(&mut self, addr: u16, byte: u8) {
         self.memory[addr as usize] = byte;
+    }
+
+    // TODO: handle overflow?
+    fn push_to_stack(&mut self, byte: u8) {
+        self.set_byte(0x100 + self.SP as u16, byte);
+        self.SP -= 1;
+    }
+
+    // TODO: handle underflow?
+    fn pull_from_stack(&mut self) -> u8 {
+        self.SP += 1;
+        self.get_byte(0x100 + self.SP as u16)
     }
 
     fn fetch_and_decode(&self) -> DecodedOpcode {
@@ -389,13 +400,13 @@ impl CPU {
             }
 
             // CLC, CLD, CLI, CLV,
-            DecodedOpcode { instruction: Instruction::CLC, operand, length }
-            | DecodedOpcode { instruction: Instruction::CLD, operand, length }
-            | DecodedOpcode { instruction: Instruction::CLI, operand, length }
-            | DecodedOpcode { instruction: Instruction::CLV, operand, length }
-            | DecodedOpcode { instruction: Instruction::SEC, operand, length }
-            | DecodedOpcode { instruction: Instruction::SED, operand, length }
-            | DecodedOpcode { instruction: Instruction::SEI, operand, length } => {
+            DecodedOpcode { instruction: Instruction::CLC, operand: _, length }
+            | DecodedOpcode { instruction: Instruction::CLD, operand: _, length }
+            | DecodedOpcode { instruction: Instruction::CLI, operand: _, length }
+            | DecodedOpcode { instruction: Instruction::CLV, operand: _, length }
+            | DecodedOpcode { instruction: Instruction::SEC, operand: _, length }
+            | DecodedOpcode { instruction: Instruction::SED, operand: _, length }
+            | DecodedOpcode { instruction: Instruction::SEI, operand: _, length } => {
                 let flag = match opcode.instruction {
                     Instruction::CLC | Instruction::SEC => Flags::C,
                     Instruction::CLD | Instruction::SED => Flags::D,
@@ -411,6 +422,68 @@ impl CPU {
                 };
 
                 self.set_flag(flag, value);
+
+                self.PC += length;
+            }
+
+            // PHA
+            DecodedOpcode { instruction: Instruction::PHA, operand, length } => {
+                match operand {
+                    Operand::NoArg => {},
+                    _ => { panic!("Unknown operand type for PHA: {:?}", operand); }
+                }
+
+                self.push_to_stack(self.A);
+
+                self.PC += length;
+            }
+
+            // PHP
+            DecodedOpcode { instruction: Instruction::PHP, operand, length } => {
+                match operand {
+                    Operand::NoArg => {},
+                    _ => { panic!("Unknown operand type for PHP: {:?}", operand); }
+                }
+
+                // TODO: one source says something about break flag being set to 1. Figure it out
+                self.push_to_stack(self.status);
+
+                self.PC += length;
+            }
+
+            // PLA
+            DecodedOpcode { instruction: Instruction::PLA, operand, length } => {
+                match operand {
+                    Operand::NoArg => {},
+                    _ => { panic!("Unknown operand type for PLA: {:?}", operand); }
+                }
+
+                self.A = self.pull_from_stack();
+                self.set_flag(Flags::Z, self.A == 0);
+                self.set_flag(Flags::N, (self.A & 0b10000000) != 0);
+
+                self.PC += length;
+            }
+
+            // PLP
+            DecodedOpcode { instruction: Instruction::PLP, operand, length } => {
+                match operand {
+                    Operand::NoArg => {},
+                    _ => { panic!("Unknown operand type for PLP: {:?}", operand); }
+                }
+
+                self.status = self.pull_from_stack();
+
+                self.PC += length;
+            }
+
+
+            // NOP
+            DecodedOpcode { instruction: Instruction::NOP, operand, length } => {
+                match operand {
+                Operand::NoArg => {},
+                _ => { panic!("Unknown operand type for MOP: {:?}", operand); }
+                }
 
                 self.PC += length;
             }
