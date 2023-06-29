@@ -49,6 +49,7 @@ pub enum Cycles {
 #[derive(Copy, Clone, Debug)]
 pub enum Instruction {
     ASL, // Shift bits left;   Modes: Accumulator; ZP, ZPX, Absolute, AbsoluteX;    Flags: N-----ZC
+    CMP, // Compare A;         Modes: Immediate, ZP, ZPX, Absolute, AX, AY, IX, IY  Flags: N-----ZC
     LDA, // Load A;            Modes: Immediate, ZP, ZPX, Absolute, AX, AY, IX, IY; Flags: N-----Z-
     LDX, // Load X;            Modes: Immediate, ZP, ZPY, Absolute, AY;             Flags: N-----Z-
     LDY, // Load Y;            Modes: Immediate, ZP, ZPX, Absolute, AX;             Flags: N-----Z-
@@ -287,35 +288,35 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (LDX, AbsoluteY, PageBoundary(4)), // 0xbe
     (None, Implied, Exact(0)), // 0xbf
     (None, Implied, Exact(0)), // 0xc0
-    (None, Implied, Exact(0)), // 0xc1
+    (CMP, IndirectX, Exact(6)), // 0xc1
     (None, Implied, Exact(0)), // 0xc2
     (None, Implied, Exact(0)), // 0xc3
     (None, Implied, Exact(0)), // 0xc4
-    (None, Implied, Exact(0)), // 0xc5
+    (CMP, ZeroPage, Exact(3)), // 0xc5
     (DEC, ZeroPage, Exact(5)), // 0xc6
     (None, Implied, Exact(0)), // 0xc7
     (INY, Implied, Exact(2)), // 0xc8
-    (None, Implied, Exact(0)), // 0xc9
+    (CMP, Immediate, Exact(2)), // 0xc9
     (DEX, Implied, Exact(2)), // 0xca
     (None, Implied, Exact(0)), // 0xcb
     (None, Implied, Exact(0)), // 0xcc
-    (None, Implied, Exact(0)), // 0xcd
+    (CMP, Absolute, Exact(4)), // 0xcd
     (DEC, Absolute, Exact(6)), // 0xce
     (None, Implied, Exact(0)), // 0xcf
     (BNE, Relative, Branching), // 0xd0
-    (None, Implied, Exact(0)), // 0xd1
+    (CMP, IndirectY, PageBoundary(5)), // 0xd1
     (None, Implied, Exact(0)), // 0xd2
     (None, Implied, Exact(0)), // 0xd3
     (None, Implied, Exact(0)), // 0xd4
-    (None, Implied, Exact(0)), // 0xd5
+    (CMP, ZeroPageX, Exact(4)), // 0xd5
     (DEC, ZeroPageX, Exact(6)), // 0xd6
     (None, Implied, Exact(0)), // 0xd7
     (CLD, Implied, Exact(2)), // 0xd8
-    (None, Implied, Exact(0)), // 0xd9
+    (CMP, AbsoluteY, PageBoundary(4)), // 0xd9
     (None, Implied, Exact(0)), // 0xda
     (None, Implied, Exact(0)), // 0xdb
     (None, Implied, Exact(0)), // 0xdc
-    (None, Implied, Exact(0)), // 0xdd
+    (CMP, AbsoluteX, PageBoundary(4)), // 0xdd
     (DEC, AbsoluteX, Exact(7)), // 0xde
     (None, Implied, Exact(0)), // 0xdf
     (None, Implied, Exact(0)), // 0xe0

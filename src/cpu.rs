@@ -178,6 +178,23 @@ impl CPU {
                 self.PC += length;
             }
 
+            // CMP
+            DecodedOpcode { instruction: Instruction::CMP, operand, length } => {
+                let c = match operand {
+                    Operand::Constant(c) => c,
+                    Operand::Address(addr) => self.get_byte(addr),
+                    _ => { panic!("Unknown operand type for CMP: {:?}", operand); }
+                };
+
+                let cmp = self.A.wrapping_sub(c);
+                self.set_flag(Flags::C, self.A >= c);
+                self.set_flag(Flags::Z, self.A == c);
+                self.set_flag(Flags::N, (cmp & 0b10000000) != 0);
+
+                self.PC += length;
+            }
+
+
             // LDA
             DecodedOpcode { instruction: Instruction::LDA, operand, length } => {
                 let c = match operand {

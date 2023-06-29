@@ -642,8 +642,36 @@ mod test {
         // asl label
         // label:
         cpu.load_at(0x600, &[0xa9, 0x31, 0x0a, 0x8d, 0x09, 0x06, 0x0e, 0x09, 0x06]);
+        cpu.PC = 0x600;
         cpu.execute(); cpu.execute(); cpu.execute(); cpu.execute();
         assert_eq!(cpu.A, 0x62);
         assert_eq!(cpu.get_byte(0x609), 0xc4);
+    }
+
+    #[test]
+    fn test_cmp() {
+        let mut cpu = CPU::new();
+        // jmp label
+        // value: nop
+        // label:
+        // lda #$20
+        // sta value
+        // lda #$1a
+        // cmp value
+        // lda #$45
+        // cmp value
+        // lda #$ff
+        // cmp value
+        cpu.load_at(0x600, &[
+            0x4c, 0x04, 0x06, 0x20, 0xa9, 0x20, 0x8d, 0x03, 0x06, 0xa9, 0x1a, 0xcd, 0x03,
+            0x06, 0xa9, 0x45, 0xcd, 0x03, 0x06, 0xa9, 0xff, 0xcd, 0x03, 0x06]);
+        cpu.PC = 0x600;
+        cpu.execute(); cpu.execute(); cpu.execute(); cpu.execute(); cpu.execute();
+        assert_eq!(cpu.status, 0b10100000);
+        cpu.execute(); cpu.execute();
+        assert_eq!(cpu.status, 0b00100001);
+        cpu.execute(); cpu.execute();
+        assert_eq!(cpu.status, 0b10100001);
+
     }
 }

@@ -5,11 +5,11 @@
 |-----|-----|----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|-----|
 | ❌   | ❌   | ✅   | ✅   | ✅   | ✅   | ❌   | ✅   | ✅   | ✅   | ❌   | ✅   | ✅   | ✅   |
 | CLD | CLI | CLV | CMP | CPX | CPY | DEC | DEX | DEY | EOR | INC | INX | INY | JMP |
-| ✅   | ✅   | ✅  | ❌   | ❌   | ❌   | ✅   | ✅   | ✅   | ❌   | ✅   | ✅   | ✅   | ✅   |
+| ✅   | ✅   | ✅  | ✅   | ❌   | ❌   | ✅   | ✅   | ✅   | ❌   | ✅   | ✅   | ✅   | ✅   |
 | JSR | LDA | LDX | LDY | LSR | NOP | ORA | PHA | PHP | PLA | PLP | ROL | ROR | TYA |
 | ✅   | ✅   | ✅  | ✅   | ❌   | ✅   | ❌   | ✅   | ✅   | ✅   | ✅   | ❌   | ❌   | ✅   |
 | RTI | RTS | SBC | SEC | SED | SEI | STA | STX | STY | TAX | TAY | TSX | TXA | TXS |
 | ❌   | ✅   | ❌  | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   | ✅   |
 
 ### Instructions:  42 / 56
-### Opcodes:       78 / 151
+### Opcodes:       84 / 151
