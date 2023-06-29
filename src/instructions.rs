@@ -79,6 +79,14 @@ pub enum Instruction {
     PLA, // Pull accumulator;  Modes: Implied;                                      Flags: N-----Z-
     PLP, // Pull status;       Modes: Implied;                                      Flags: NV-BDIZC
     JMP, // Jump to;           Modes: Absolute, Indirect;                           Flags: --------
+    BCC, // Branch on C clear; Modes: Relative;                                     Flags: --------
+    BCS, // Branch on C set;   Modes: Relative;                                     Flags: --------
+    BEQ, // Branch on Z set;   Modes: Relative;                                     Flags: --------
+    BNE, // Branch on Z clear; Modes: Relative;                                     Flags: --------
+    BMI, // Branch on N set;   Modes: Relative;                                     Flags: --------
+    BPL, // Branch on N clear; Modes: Relative;                                     Flags: --------
+    BVC, // Branch on V clear; Modes: Relative;                                     Flags: --------
+    BVS, // Branch on V set;   Modes: Relative;                                     Flags: --------
     None
 }
 
@@ -99,7 +107,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x0d
     (None, Implied, Exact(0)), // 0x0e
     (None, Implied, Exact(0)), // 0x0f
-    (None, Implied, Exact(0)), // 0x10
+    (BPL, Relative, Branching), // 0x10
     (None, Implied, Exact(0)), // 0x11
     (None, Implied, Exact(0)), // 0x12
     (None, Implied, Exact(0)), // 0x13
@@ -131,7 +139,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x2d
     (None, Implied, Exact(0)), // 0x2e
     (None, Implied, Exact(0)), // 0x2f
-    (None, Implied, Exact(0)), // 0x30
+    (BMI, Relative, Branching), // 0x30
     (None, Implied, Exact(0)), // 0x31
     (None, Implied, Exact(0)), // 0x32
     (None, Implied, Exact(0)), // 0x33
@@ -163,7 +171,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x4d
     (None, Implied, Exact(0)), // 0x4e
     (None, Implied, Exact(0)), // 0x4f
-    (None, Implied, Exact(0)), // 0x50
+    (BVC, Relative, Branching), // 0x50
     (None, Implied, Exact(0)), // 0x51
     (None, Implied, Exact(0)), // 0x52
     (None, Implied, Exact(0)), // 0x53
@@ -195,7 +203,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x6d
     (None, Implied, Exact(0)), // 0x6e
     (None, Implied, Exact(0)), // 0x6f
-    (None, Implied, Exact(0)), // 0x70
+    (BVS, Relative, Branching), // 0x70
     (None, Implied, Exact(0)), // 0x71
     (None, Implied, Exact(0)), // 0x72
     (None, Implied, Exact(0)), // 0x73
@@ -227,7 +235,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (STA, Absolute, Exact(4)), // 0x8d
     (STX, Absolute, Exact(4)), // 0x8e
     (None, Implied, Exact(0)), // 0x8f
-    (None, Implied, Exact(0)), // 0x90
+    (BCC, Relative, Branching), // 0x90
     (STA, IndirectY, Exact(6)), // 0x91
     (None, Implied, Exact(0)), // 0x92
     (None, Implied, Exact(0)), // 0x93
@@ -259,7 +267,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (LDA, Absolute, Exact(4)), // 0xad
     (LDX, Absolute, Exact(4)), // 0xae
     (None, Implied, Exact(0)), // 0xaf
-    (None, Implied, Exact(0)), // 0xb0
+    (BCS, Relative, Branching), // 0xb0
     (LDA, IndirectY, PageBoundary(5)), // 0xb1
     (None, Implied, Exact(0)), // 0xb2
     (None, Implied, Exact(0)), // 0xb3
@@ -291,7 +299,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0xcd
     (DEC, Absolute, Exact(6)), // 0xce
     (None, Implied, Exact(0)), // 0xcf
-    (None, Implied, Exact(0)), // 0xd0
+    (BNE, Relative, Branching), // 0xd0
     (None, Implied, Exact(0)), // 0xd1
     (None, Implied, Exact(0)), // 0xd2
     (None, Implied, Exact(0)), // 0xd3
@@ -323,7 +331,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0xed
     (INC, Absolute, Exact(6)), // 0xee
     (None, Implied, Exact(0)), // 0xef
-    (None, Implied, Exact(0)), // 0xf0
+    (BEQ, Relative, Branching), // 0xf0
     (None, Implied, Exact(0)), // 0xf1
     (None, Implied, Exact(0)), // 0xf2
     (None, Implied, Exact(0)), // 0xf3

@@ -558,6 +558,34 @@ mod test {
         assert_eq!(cpu.status, 0b10100000);
     }
 
+    // BCC/BCS, BNE/BEQ, BPL/BMI, BVC/BVS
+    #[test]
+    fn test_branching() {
+        let mut cpu = CPU::new();
+        // lda #$11
+        // sec
+        // bcs label_1
+        //
+        // lda #$22
+        //
+        // negative_offset_label:
+        // bpl label_2
+        // lda #$22
+        //
+        // label_1:
+        // clc
+        // bcc negative_offset_label
+        // lda #$22
+        //
+        // label_2:
+        // tax
+        cpu.load_at(0x600, &[0xa9, 0x11, 0x38, 0xb0, 0x06, 0xa9, 0x22, 0x10, 0x07, 0xa9, 0x22, 0x18, 0x90, 0xf9, 0xa9, 0x22, 0xaa]);
+        cpu.PC = 0x600;
+        cpu.execute(); cpu.execute(); cpu.execute(); cpu.execute(); cpu.execute(); cpu.execute(); cpu.execute();
+        assert_eq!(cpu.A, 0x11);
+        assert_eq!(cpu.X, 0x11);
+    }
+
 
     // JMP
     #[test]

@@ -11,6 +11,7 @@ pub struct CPU {
     memory: [u8; 0x10000]
 }
 
+#[derive(Debug)]
 #[allow(dead_code)]
 enum Flags {
     C = 0, // Carry flag
@@ -118,7 +119,7 @@ impl CPU {
                 Operand::Address(self.get_byte(self.PC + 1).wrapping_add(self.Y) as u16),
             AddressingMode::Relative => {
                 let addr = self.PC.checked_add_signed(self.get_byte_as_i16(self.PC + 1)).unwrap();
-                Operand::Address(addr)
+                Operand::Address(addr + 2)
             },
             AddressingMode::Absolute =>
                 Operand::Address(self.get_word(self.PC + 1)),
@@ -143,6 +144,7 @@ impl CPU {
 
     pub fn execute(&mut self) {
         let opcode = self.fetch_and_decode();
+
         match opcode {
             // LDA
             DecodedOpcode { instruction: Instruction::LDA, operand, length } => {
@@ -486,6 +488,41 @@ impl CPU {
                 }
 
                 self.PC += length;
+            }
+
+            // BCC/BCS, BNE/BEQ, BPL/BMI, BVC/BVS
+            DecodedOpcode { instruction: Instruction::BCC, operand, length }
+            | DecodedOpcode { instruction: Instruction::BCS, operand, length }
+            | DecodedOpcode { instruction: Instruction::BNE, operand, length }
+            | DecodedOpcode { instruction: Instruction::BEQ, operand, length }
+            | DecodedOpcode { instruction: Instruction::BPL, operand, length }
+            | DecodedOpcode { instruction: Instruction::BMI, operand, length }
+            | DecodedOpcode { instruction: Instruction::BVC, operand, length }
+            | DecodedOpcode { instruction: Instruction::BVS, operand, length }=> {
+                let flag = match opcode.instruction {
+                    Instruction::BCC | Instruction::BCS => Flags::C,
+                    Instruction::BNE | Instruction::BEQ => Flags::Z,
+                    Instruction::BPL | Instruction::BMI => Flags::N,
+                    Instruction::BVC | Instruction::BVS => Flags::V,
+                    _ => { panic!(); }
+                };
+
+                let value = match opcode.instruction {
+                    Instruction::BCC | Instruction::BNE | Instruction::BPL | Instruction::BVC => false,
+                    Instruction::BCS | Instruction::BEQ | Instruction::BMI | Instruction::BVS => true,
+                    _ => { panic!(); }
+                };
+
+                let addr = match operand {
+                    Operand::Address(addr) => addr,
+                    _ => { panic!(); }
+                };
+
+                if self.get_flag(flag) == value { // take the branch
+                    self.PC = addr;
+                } else {
+                    self.PC += length;
+                }
             }
 
             // JMP
