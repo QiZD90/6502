@@ -50,6 +50,8 @@ pub enum Cycles {
 pub enum Instruction {
     ASL, // Shift bits left;   Modes: Accumulator; ZP, ZPX, Absolute, AbsoluteX;    Flags: N-----ZC
     CMP, // Compare A;         Modes: Immediate, ZP, ZPX, Absolute, AX, AY, IX, IY  Flags: N-----ZC
+    CPX, // Compare X;         Modes: Immediate, ZP, Absolute;                      Flags: N-----ZC
+    CPY, // Compare Y;         Modes: Immediate, ZP, Absolute;                      Flags: N-----ZC
     LDA, // Load A;            Modes: Immediate, ZP, ZPX, Absolute, AX, AY, IX, IY; Flags: N-----Z-
     LDX, // Load X;            Modes: Immediate, ZP, ZPY, Absolute, AY;             Flags: N-----Z-
     LDY, // Load Y;            Modes: Immediate, ZP, ZPX, Absolute, AX;             Flags: N-----Z-
@@ -287,11 +289,11 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (LDA, AbsoluteX, PageBoundary(4)), // 0xbd
     (LDX, AbsoluteY, PageBoundary(4)), // 0xbe
     (None, Implied, Exact(0)), // 0xbf
-    (None, Implied, Exact(0)), // 0xc0
+    (CPY, Immediate, Exact(2)), // 0xc0
     (CMP, IndirectX, Exact(6)), // 0xc1
     (None, Implied, Exact(0)), // 0xc2
     (None, Implied, Exact(0)), // 0xc3
-    (None, Implied, Exact(0)), // 0xc4
+    (CPY, ZeroPage, Exact(3)), // 0xc4
     (CMP, ZeroPage, Exact(3)), // 0xc5
     (DEC, ZeroPage, Exact(5)), // 0xc6
     (None, Implied, Exact(0)), // 0xc7
@@ -299,7 +301,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (CMP, Immediate, Exact(2)), // 0xc9
     (DEX, Implied, Exact(2)), // 0xca
     (None, Implied, Exact(0)), // 0xcb
-    (None, Implied, Exact(0)), // 0xcc
+    (CPY, Absolute, Exact(4)), // 0xcc
     (CMP, Absolute, Exact(4)), // 0xcd
     (DEC, Absolute, Exact(6)), // 0xce
     (None, Implied, Exact(0)), // 0xcf
@@ -319,11 +321,11 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (CMP, AbsoluteX, PageBoundary(4)), // 0xdd
     (DEC, AbsoluteX, Exact(7)), // 0xde
     (None, Implied, Exact(0)), // 0xdf
-    (None, Implied, Exact(0)), // 0xe0
+    (CPX, Immediate, Exact(2)), // 0xe0
     (None, Implied, Exact(0)), // 0xe1
     (None, Implied, Exact(0)), // 0xe2
     (None, Implied, Exact(0)), // 0xe3
-    (None, Implied, Exact(0)), // 0xe4
+    (CPX, ZeroPage, Exact(3)), // 0xe4
     (None, Implied, Exact(0)), // 0xe5
     (INC, ZeroPage, Exact(5)), // 0xe6
     (None, Implied, Exact(0)), // 0xe7
@@ -331,7 +333,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0xe9
     (NOP, Implied, Exact(2)), // 0xea
     (None, Implied, Exact(0)), // 0xeb
-    (None, Implied, Exact(0)), // 0xec
+    (CPX, Absolute, Exact(4)), // 0xec
     (None, Implied, Exact(0)), // 0xed
     (INC, Absolute, Exact(6)), // 0xee
     (None, Implied, Exact(0)), // 0xef

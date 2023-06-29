@@ -672,6 +672,5 @@ mod test {
         assert_eq!(cpu.status, 0b00100001);
         cpu.execute(); cpu.execute();
         assert_eq!(cpu.status, 0b10100001);
-
     }
 }
