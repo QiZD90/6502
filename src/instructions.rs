@@ -87,6 +87,8 @@ pub enum Instruction {
     BPL, // Branch on N clear; Modes: Relative;                                     Flags: --------
     BVC, // Branch on V clear; Modes: Relative;                                     Flags: --------
     BVS, // Branch on V set;   Modes: Relative;                                     Flags: --------
+    JSR, // Call;              Modes: Absolute;                                     Flags: --------
+    RTS, // Return;            Modes: Implied;                                      Flags: --------
     None
 }
 
@@ -123,7 +125,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x1d
     (None, Implied, Exact(0)), // 0x1e
     (None, Implied, Exact(0)), // 0x1f
-    (None, Implied, Exact(0)), // 0x20
+    (JSR, Absolute, Exact(6)), // 0x20
     (None, Implied, Exact(0)), // 0x21
     (None, Implied, Exact(0)), // 0x22
     (None, Implied, Exact(0)), // 0x23
@@ -187,7 +189,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x5d
     (None, Implied, Exact(0)), // 0x5e
     (None, Implied, Exact(0)), // 0x5f
-    (None, Implied, Exact(0)), // 0x60
+    (RTS, Implied, Exact(6)), // 0x60
     (None, Implied, Exact(0)), // 0x61
     (None, Implied, Exact(0)), // 0x62
     (None, Implied, Exact(0)), // 0x63

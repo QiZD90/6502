@@ -52,6 +52,7 @@ impl CPU {
         println!(" }} ");
     }
 
+    #[allow(dead_code)]
     pub fn print_memory(&self) {
         for i in 0..=0xff {
             print!("0x{:2x}00: ", i);
@@ -102,6 +103,15 @@ impl CPU {
     fn pull_from_stack(&mut self) -> u8 {
         self.SP += 1;
         self.get_byte(0x100 + self.SP as u16)
+    }
+
+    fn push_word_to_stack(&mut self, word: u16) {
+        self.push_to_stack((word >> 8) as u8);
+        self.push_to_stack((word & 0xffu16) as u8);
+    }
+
+    fn pull_word_from_stack(&mut self,) -> u16 {
+        self.pull_from_stack() as u16 | (self.pull_from_stack() as u16) << 8
     }
 
     fn fetch_and_decode(&self) -> DecodedOpcode {
@@ -523,6 +533,28 @@ impl CPU {
                 } else {
                     self.PC += length;
                 }
+            }
+
+            // JSR
+            DecodedOpcode { instruction: Instruction::JSR, operand, length } => {
+                let addr = match operand {
+                    Operand::Address(addr) => addr,
+                    _ => { panic!("Unknown operand type for JSR: {:?}", operand); }
+                };
+
+                self.push_word_to_stack(self.PC + length - 1);
+                self.PC = addr;
+            }
+
+            // RTS
+            DecodedOpcode { instruction: Instruction::RTS, operand, .. } => {
+                match operand {
+                    Operand::NoArg => {},
+                    _ => { panic!("Unknown operand type for RTS: {:?}", operand); }
+                };
+
+                let addr = self.pull_word_from_stack();
+                self.PC = addr + 1;
             }
 
             // JMP

@@ -502,6 +502,7 @@ mod test {
     }
 
     // CLC, CLD, CLI, CLV, SEC, SED, SEI
+    #[test]
     fn test_flags_instructions() {
         let mut cpu = CPU::new();
         cpu.load_at(0x600, &[0x38, 0xf8, 0x78,    0x18, 0xd8, 0x58, 0xb8]);
@@ -584,6 +585,31 @@ mod test {
         cpu.execute(); cpu.execute(); cpu.execute(); cpu.execute(); cpu.execute(); cpu.execute(); cpu.execute();
         assert_eq!(cpu.A, 0x11);
         assert_eq!(cpu.X, 0x11);
+    }
+
+    #[test]
+    fn test_push_and_pull_word() {
+        let mut cpu = CPU::new();
+        cpu.push_word_to_stack(0xdead);
+        assert_eq!(cpu.get_byte(0x1ff), 0xde);
+        assert_eq!(cpu.get_byte(0x1fe), 0xad);
+        let word = cpu.pull_word_from_stack();
+        assert_eq!(word, 0xdead);
+    }
+
+    #[test]
+    fn test_jsr_rts() { // TODO: behavior is not consistent with easy6502. Maybe the site's version is wrong
+        let mut cpu = CPU::new();
+        // jsr label
+        // lda #$22
+        // label:
+        // lda #$11
+        // rts
+        cpu.load_at(0x600, &[0x20, 0x05, 0x06, 0xa9, 0x22, 0xa9, 0x11, 0x60]);
+        cpu.execute(); cpu.execute();
+        assert_eq!(cpu.A, 0x11);
+        cpu.execute(); cpu.execute();
+        assert_eq!(cpu.A, 0x22);
     }
 
 
