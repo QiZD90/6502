@@ -156,6 +156,28 @@ impl CPU {
         let opcode = self.fetch_and_decode();
 
         match opcode {
+            // ASL
+            DecodedOpcode { instruction: Instruction::ASL, operand, length } => {
+                let mut c = match operand {
+                    Operand::Accumulator => self.A,
+                    Operand::Address(addr) => self.get_byte(addr),
+                    _ => { panic!("Unknown operand type for ASL: {:?}", operand); }
+                };
+
+                self.set_flag(Flags::C, (c & 0b10000000) != 0);
+                c = c << 1;
+                self.set_flag(Flags::Z, c == 0);
+                self.set_flag(Flags::N, (c & 0b10000000) != 0);
+
+                match operand {
+                    Operand::Accumulator => { self.A = c; }
+                    Operand::Address(addr) => { self.set_byte(addr, c); }
+                    _ => { panic!("Unknown operand type for ASL: {:?}", operand); }
+                };
+
+                self.PC += length;
+            }
+
             // LDA
             DecodedOpcode { instruction: Instruction::LDA, operand, length } => {
                 let c = match operand {

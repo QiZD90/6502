@@ -612,7 +612,6 @@ mod test {
         assert_eq!(cpu.A, 0x22);
     }
 
-
     // JMP
     #[test]
     fn test_jmp_indirect() {
@@ -632,5 +631,19 @@ mod test {
         cpu.execute();
         assert_eq!(cpu.PC, 0x2012);
         assert_eq!(cpu.status, 0b00100000);
+    }
+
+    #[test]
+    fn test_asl() {
+        let mut cpu = CPU::new();
+        // lda #$31
+        // asl A
+        // sta label
+        // asl label
+        // label:
+        cpu.load_at(0x600, &[0xa9, 0x31, 0x0a, 0x8d, 0x09, 0x06, 0x0e, 0x09, 0x06]);
+        cpu.execute(); cpu.execute(); cpu.execute(); cpu.execute();
+        assert_eq!(cpu.A, 0x62);
+        assert_eq!(cpu.get_byte(0x609), 0xc4);
     }
 }

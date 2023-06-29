@@ -48,6 +48,7 @@ pub enum Cycles {
 
 #[derive(Copy, Clone, Debug)]
 pub enum Instruction {
+    ASL, // Shift bits left;   Modes: Accumulator; ZP, ZPX, Absolute, AbsoluteX;    Flags: N-----ZC
     LDA, // Load A;            Modes: Immediate, ZP, ZPX, Absolute, AX, AY, IX, IY; Flags: N-----Z-
     LDX, // Load X;            Modes: Immediate, ZP, ZPY, Absolute, AY;             Flags: N-----Z-
     LDY, // Load Y;            Modes: Immediate, ZP, ZPX, Absolute, AX;             Flags: N-----Z-
@@ -99,15 +100,15 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x03
     (None, Implied, Exact(0)), // 0x04
     (None, Implied, Exact(0)), // 0x05
-    (None, Implied, Exact(0)), // 0x06
+    (ASL, ZeroPage, Exact(5)), // 0x06
     (None, Implied, Exact(0)), // 0x07
     (PHP, Implied, Exact(3)), // 0x08
     (None, Implied, Exact(0)), // 0x09
-    (None, Implied, Exact(0)), // 0x0a
+    (ASL, Accumulator, Exact(2)), // 0x0a
     (None, Implied, Exact(0)), // 0x0b
     (None, Implied, Exact(0)), // 0x0c
     (None, Implied, Exact(0)), // 0x0d
-    (None, Implied, Exact(0)), // 0x0e
+    (ASL, Absolute, Exact(6)), // 0x0e
     (None, Implied, Exact(0)), // 0x0f
     (BPL, Relative, Branching), // 0x10
     (None, Implied, Exact(0)), // 0x11
@@ -115,7 +116,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x13
     (None, Implied, Exact(0)), // 0x14
     (None, Implied, Exact(0)), // 0x15
-    (None, Implied, Exact(0)), // 0x16
+    (ASL, ZeroPageX, Exact(6)), // 0x16
     (None, Implied, Exact(0)), // 0x17
     (CLC, Implied, Exact(2)), // 0x18
     (None, Implied, Exact(0)), // 0x19
@@ -123,7 +124,7 @@ pub static OPCODES: [(Instruction, AddressingMode, Cycles); 256] = [
     (None, Implied, Exact(0)), // 0x1b
     (None, Implied, Exact(0)), // 0x1c
     (None, Implied, Exact(0)), // 0x1d
-    (None, Implied, Exact(0)), // 0x1e
+    (ASL, AbsoluteX, Exact(7)), // 0x1e
     (None, Implied, Exact(0)), // 0x1f
     (JSR, Absolute, Exact(6)), // 0x20
     (None, Implied, Exact(0)), // 0x21
